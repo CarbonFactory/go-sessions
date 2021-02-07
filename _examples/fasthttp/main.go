@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/kataras/go-sessions/v3"
+	"github.com/CarbonFactory/go-sessions/v3"
 	"github.com/valyala/fasthttp"
 )
 
