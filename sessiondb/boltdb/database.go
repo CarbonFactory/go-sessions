@@ -27,6 +27,7 @@ type Database struct {
 	// it's initialized at `New` or `NewFromDB`.
 	// Can be used to get stats.
 	Service *bolt.DB
+	async   bool
 }
 
 var errPathMissing = errors.New("path is required")
@@ -36,8 +37,8 @@ var errPathMissing = errors.New("path is required")
 // Path should include the filename and the directory(aka fullpath), i.e sessions/store.db.
 //
 // It will remove any old session files.
-func New(path string, fileMode os.FileMode) (*Database, error) {
-	if path == "" {
+func New(path string, fileMode os.FileMode, bucketName string) (*Database, error) {
+	if path == "" || bucketName == "" {
 		return nil, errPathMissing
 	}
 
@@ -58,11 +59,16 @@ func New(path string, fileMode os.FileMode) (*Database, error) {
 		return nil, err
 	}
 
-	return NewFromDB(service, "sessions")
+	return NewFromDB(service, bucketName)
 }
 
 // NewFromDB same as `New` but accepts an already-created custom boltdb connection instead.
 func NewFromDB(service *bolt.DB, bucketName string) (*Database, error) {
+
+	if bucketName == "" {
+		return nil, errPathMissing
+	}
+
 	bucket := []byte(bucketName)
 
 	service.Update(func(tx *bolt.Tx) (err error) {
